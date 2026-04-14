@@ -21,6 +21,7 @@ Lightweight, self-hosted network traffic monitor for Linux.
 - [Traffic Direction](#traffic-direction)
 - [Platform Requirements](#platform-requirements)
 - [Troubleshooting](#troubleshooting)
+- [Upstream Data](#upstream-data)
 - [License](#license)
 
 ---
@@ -55,6 +56,8 @@ Everything stays on your machine. The only outbound connection is a daily geo-da
 - **Interactive world map** — zoomable map with traffic bubbles, click to drill down
 - **Time ranges** — Live, 24h, 7d, 30d, All, or pick a custom date range
 - **Direction filters** — filter by All / Incoming / Outgoing traffic
+- **Live bandwidth** — rolling bits/sec and packets/sec display
+- **New vs returning IPs** — per-interval breakdown with anomaly flag for scanning detection
 - **Dark & light themes** — 5 colour palettes to choose from
 - **Keyboard shortcuts** — press `?` in the dashboard for a full list
 - **Data export** — CSV, JSON, or plain IP list for use in blocklists or other tools
@@ -75,12 +78,12 @@ Pick your architecture:
 
 ```bash
 # Raspberry Pi 3/4/5, ARM servers (aarch64)
-curl -L https://github.com/k-one-e/netwatch/releases/latest/download/netwatch-aarch64.tar.gz | tar xz
-sudo mv netwatch-aarch64 /opt/netwatch
+curl -L https://github.com/k-one-e/netwatch/releases/download/latest/netwatch-aarch64.tar.gz | tar xz
+sudo mv netwatch /opt/netwatch
 
 # Standard servers, desktops, VMs (x86_64)
-curl -L https://github.com/k-one-e/netwatch/releases/latest/download/netwatch-x86_64.tar.gz | tar xz
-sudo mv netwatch-x86_64 /opt/netwatch
+curl -L https://github.com/k-one-e/netwatch/releases/download/latest/netwatch-x86_64.tar.gz | tar xz
+sudo mv netwatch /opt/netwatch
 ```
 
 ### 2. Install
