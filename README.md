@@ -204,8 +204,9 @@ Edit `/opt/netwatch/config.json`:
 
 ```json
 {
+  "port": 8080,
   "interval": 30,
-  "iface": null,
+  "iface": "",
   "retention_days": 90,
   "disk_warn_mb": 100
 }
@@ -213,8 +214,9 @@ Edit `/opt/netwatch/config.json`:
 
 | Setting | Default | Description |
 |---------|---------|-------------|
+| `port` | `8080` | HTTP server port for the dashboard |
 | `interval` | `30` | How often the dashboard updates (seconds) |
-| `iface` | `null` (all) | Network interface to monitor (e.g. `"eth0"`, `"wlan0"`) |
+| `iface` | `""` (all) | Network interface to monitor (e.g. `"eth0"`, `"wlan0"`) |
 | `retention_days` | `90` | Delete data older than this many days (0 = keep forever) |
 | `disk_warn_mb` | `100` | Pause data collection when free disk space drops below this (MB) |
 
