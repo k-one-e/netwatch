@@ -15,6 +15,7 @@ Lightweight, self-hosted network traffic monitor for Linux.
 - [Quick Start](#quick-start)
 - [Dashboard](#dashboard)
 - [Configuration](#configuration)
+- [Authentication](#authentication)
 - [API Endpoints](#api-endpoints)
 - [Keyboard Shortcuts](#keyboard-shortcuts)
 - [Data & Storage](#data--storage)
@@ -61,6 +62,8 @@ Everything stays on your machine. The only outbound connection is a daily geo-da
 - **Dark & light themes** — 5 colour palettes to choose from
 - **Keyboard shortcuts** — press `?` in the dashboard for a full list
 - **Data export** — CSV, JSON, or plain IP list for use in blocklists or other tools
+- **Password-protected dashboard** — optional login page with brute-force protection
+- **API key support** — access the API from scripts without a browser session
 - **Auto-purge** — old data is automatically cleaned up (default: 90 days)
 - **Disk-space protection** — pauses data writes if disk space runs low
 - **Geo database auto-update** — refreshes every 24 hours, verifies downloads before applying
@@ -208,7 +211,11 @@ Edit `/opt/netwatch/config.json`:
   "interval": 30,
   "iface": "",
   "retention_days": 90,
-  "disk_warn_mb": 100
+  "disk_warn_mb": 100,
+  "auth_user": "",
+  "auth_hash": "",
+  "auth_api_key": "",
+  "session_hours": 72
 }
 ```
 
@@ -219,6 +226,10 @@ Edit `/opt/netwatch/config.json`:
 | `iface` | `""` (all) | Network interface to monitor (e.g. `"eth0"`, `"wlan0"`) |
 | `retention_days` | `90` | Delete data older than this many days (0 = keep forever) |
 | `disk_warn_mb` | `100` | Pause data collection when free disk space drops below this (MB) |
+| `auth_user` | `""` | Username for dashboard login (empty = no login required) |
+| `auth_hash` | `""` | Password hash — generate with `./netwatch --hash-password` |
+| `auth_api_key` | `""` | Optional API key for script/automation access |
+| `session_hours` | `72` | How long a login session lasts (hours) |
 
 After changing the config, restart the service:
 
@@ -228,12 +239,63 @@ sudo systemctl restart netwatch
 
 ---
 
-## API Endpoints
+## Authentication
+
+By default, the dashboard is open — anyone who can reach the port can view it. To add a login page:
+
+### 1. Generate a password hash
+
+```bash
+cd /opt/netwatch
+./netwatch --hash-password "your-password"
+```
+
+This prints a hash like `$2a$10$...` — copy it.
+
+### 2. Edit `config.json`
+
+```json
+{
+  "auth_user": "admin",
+  "auth_hash": "$2a$10$xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "auth_api_key": "",
+  "session_hours": 72
+}
+```
+
+### 3. Restart
+
+```bash
+sudo systemctl restart netwatch
+```
+
+Now visiting the dashboard shows a login page. After signing in, your session lasts 72 hours (configurable).
+
+### API key (optional)
+
+If you want scripts or tools to access the API without logging in through a browser, set `auth_api_key` to any secret string, then pass it in requests:
+
+```bash
+curl -H "Authorization: Bearer your-api-key" http://host:8080/stats.json
+curl -H "X-API-Key: your-api-key" http://host:8080/export/json
+```
+
+### Brute-force protection
+
+After 10 failed login attempts from the same IP within 5 minutes, further attempts are temporarily blocked.
+
+### Disabling authentication
+
+To go back to open access, remove or empty `auth_user` and `auth_hash` in `config.json` and restart.
+
+---
 
 For automation or custom integrations, netwatch exposes a simple HTTP API:
 
 | Endpoint | Description |
 |----------|-------------|
+| `/login` | Login page (only when authentication is enabled) |
+| `/logout` | Sign out and return to login page |
 | `/dashboard.html` | Dashboard UI |
 | `/hourly?from=YYYY-MM-DD&to=YYYY-MM-DD` | Hourly traffic data for a date range |
 | `/daily` | Daily traffic totals |
